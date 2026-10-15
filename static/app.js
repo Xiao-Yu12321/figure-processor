@@ -4,6 +4,8 @@ let originalURL = null;
 let busy = false;
 let generation = 0;
 let available = null;
+let fullResult = null;
+let currentResult = null;
 
 function updateEngineInfo() {
   const engine = $('engine').value;
@@ -23,14 +25,90 @@ function status(message, error = false) {
   $('status').textContent = message;
   $('status').classList.toggle('error', error);
 }
+const sourceCrop = new RectangleSelection($('source-stage'), $('original'), $('source-selection'), box => {
+  invalidateResult();
+  $('source-crop-info').textContent = `仅处理选区 ${box[2]-box[0]} × ${box[3]-box[1]} px`;
+  refreshCropControls();
+  status('已选定处理区域，点击“处理图片”。');
+});
+const resultCrop = new RectangleSelection($('result-stage'), $('result'), $('result-selection'), box => {
+  $('result-crop-info').textContent = `选区 ${box[2]-box[0]} × ${box[3]-box[1]} px`;
+  refreshCropControls();
+});
+function refreshCropControls() {
+  $('source-select').disabled = busy || !selectedFile || !$('original').naturalWidth;
+  $('source-select').setAttribute('aria-pressed', String(sourceCrop.active));
+  $('source-clear').disabled = busy || !sourceCrop.box;
+  $('result-select').disabled = busy || !currentResult || !$('result').naturalWidth;
+  $('result-select').setAttribute('aria-pressed', String(resultCrop.active));
+  $('result-apply').disabled = busy || !currentResult || !resultCrop.box;
+  $('result-clear').disabled = busy || !resultCrop.box;
+  $('result-reset').disabled = busy || !fullResult || fullResult === currentResult;
+}
+function setBusy(value) {
+  busy = value;
+  if (busy) {sourceCrop.setActive(false); resultCrop.setActive(false);}
+  $('process').disabled = busy || !selectedFile;
+  refreshCropControls();
+}
+function showResult(result, name) {
+  currentResult = result;
+  resultCrop.clear();
+  $('result-crop-info').textContent = '';
+  $('result').src = result.image;
+  $('result').hidden = false;
+  $('result-stage').hidden = false;
+  $('result-placeholder').hidden = true;
+  $('result-info').textContent = result.caption;
+  $('download').href = result.image;
+  $('download').download = name;
+  $('download').classList.remove('disabled');
+  $('download').setAttribute('aria-disabled', 'false');
+  refreshCropControls();
+}
+$('original').addEventListener('load', refreshCropControls);
+$('result').addEventListener('load', refreshCropControls);
+$('source-select').onclick = () => {
+  sourceCrop.setActive(!sourceCrop.active);
+  $('source-crop-info').textContent = sourceCrop.active ? '在图上拖拽框选，可重新框选。' : (sourceCrop.box ? '已保留处理选区。' : '');
+  refreshCropControls();
+};
+$('source-clear').onclick = () => {
+  sourceCrop.clear();
+  $('source-crop-info').textContent = '';
+  invalidateResult();
+  status('已取消选区，将处理完整原图。');
+};
+$('result-select').onclick = () => {
+  resultCrop.setActive(!resultCrop.active);
+  $('result-crop-info').textContent = resultCrop.active ? '在图上拖拽框选，再点击“保留选区”。' : '';
+  refreshCropControls();
+};
+$('result-clear').onclick = () => {resultCrop.clear(); $('result-crop-info').textContent = ''; refreshCropControls();};
+$('result-reset').onclick = () => {
+  if (!fullResult || busy) return;
+  showResult(fullResult, $('download').download);
+  status('已恢复本次处理的完整结果。');
+};
+document.addEventListener('keydown', event => {
+  if (event.key !== 'Escape' || busy) return;
+  if (sourceCrop.active) $('source-clear').onclick();
+  if (resultCrop.active) $('result-clear').onclick();
+});
 function invalidateResult() {
   generation++;
+  fullResult = null;
+  currentResult = null;
+  resultCrop.clear();
+  $('result-stage').hidden = true;
+  $('result-crop-info').textContent = '';
   $('download').removeAttribute('href');
   $('download').classList.add('disabled');
   $('download').setAttribute('aria-disabled', 'true');
   $('result').hidden = true;
   $('result-placeholder').hidden = false;
   $('result-info').textContent = '处理完成后，可切换底色检查线条和透明边缘。';
+  refreshCropControls();
 }
 function selectFile(file) {
   if (!file) return;
@@ -38,9 +116,12 @@ function selectFile(file) {
   if (!/^image\/(png|jpeg|webp|bmp|x-ms-bmp)$/.test(file.type)) return status('请使用 PNG、JPEG、WebP 或 BMP 图片。', true);
   if (originalURL) URL.revokeObjectURL(originalURL);
   selectedFile = file;
+  sourceCrop.clear();
+  $('source-crop-info').textContent = '';
   originalURL = URL.createObjectURL(file);
   $('original').src = originalURL;
   $('original').hidden = false;
+  $('source-stage').hidden = false;
   $('placeholder').hidden = true;
   $('source-info').textContent = `${file.name || '粘贴的截图'} · ${(file.size / 1024).toFixed(0)} KB`;
   $('source-info').hidden = false;
@@ -48,7 +129,7 @@ function selectFile(file) {
   invalidateResult();
   status('截图已就绪，点击“处理图片”。');
 }
-$('drop').onclick = () => $('file').click();
+$('drop').onclick = () => {if (!sourceCrop.active) $('file').click();};
 $('drop').onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); $('file').click(); } };
 $('file').onchange = (e) => { selectFile(e.target.files[0]); e.target.value = ''; };
 document.addEventListener('paste', (e) => {
@@ -83,8 +164,8 @@ $('process').onclick = async () => {
   data.append('image', file, file.name || 'screenshot.png');
   for (const id of ['engine', 'scale', 'tolerance', 'sharpen', 'padding', 'background']) data.append(id, $(id).value);
   data.append('denoise', $('denoise').checked);
-  busy = true;
-  $('process').disabled = true;
+  if (sourceCrop.box) data.append('crop', JSON.stringify(sourceCrop.box));
+  setBusy(true);
   $('process').textContent = '正在处理…';
   status('正在提高清晰度、去除背景并裁剪空白…');
   const controller = new AbortController();
@@ -96,21 +177,43 @@ $('process').onclick = async () => {
     const result = await response.json();
     if (version !== generation) return;
     if (!response.ok) throw new Error(result.error || '处理失败，请重试。');
-    $('result').src = result.image;
-    $('result').hidden = false;
-    $('result-placeholder').hidden = true;
-    $('result-info').textContent = `${result.original.join(' × ')} → ${result.output.join(' × ')} px · PNG · ${((performance.now() - startedAt) / 1000).toFixed(2)} 秒`;
-    $('download').href = result.image;
-    $('download').download = (file.name || 'screenshot').replace(/\.[^.]+$/, '') + '-clean.png';
-    $('download').classList.remove('disabled');
-    $('download').setAttribute('aria-disabled', 'false');
+    result.caption = `${result.original.join(' × ')} → ${result.output.join(' × ')} px · PNG · ${((performance.now() - startedAt) / 1000).toFixed(2)} 秒`;
+    fullResult = result;
+    showResult(result, (file.name || 'screenshot').replace(/\.[^.]+$/, '') + '-clean.png');
     status('处理完成。若细线缺失，请降低去背景容差。');
   } catch (error) {
     if (version === generation) status(error.name === 'AbortError' ? (timeoutMs === 10000 ? '本次处理超过 10 秒，请缩小截图或选择基础增强。' : '豆包 API 超时，请稍后重试。') : error.message, true);
   } finally {
     clearTimeout(timeout);
-    busy = false;
-    $('process').disabled = !selectedFile;
+    setBusy(false);
     $('process').innerHTML = '处理图片 <span>→</span>';
+  }
+};
+$('result-apply').onclick = async () => {
+  if (busy || !currentResult || !resultCrop.box) return;
+  const version = generation;
+  const data = new FormData();
+  const image = currentResult.image;
+  const box = [...resultCrop.box];
+  setBusy(true);
+  status('正在保留选区…');
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 10000);
+  try {
+    const blob = await (await fetch(image)).blob();
+    data.append('image', blob, 'result.png');
+    data.append('crop', JSON.stringify(box));
+    const response = await fetch('/api/crop', {method: 'POST', body: data, signal: controller.signal});
+    const result = await response.json();
+    if (version !== generation) return;
+    if (!response.ok) throw new Error(result.error || '裁剪失败，请重试。');
+    result.caption = `${result.output.join(' × ')} px · PNG · 已保留选区`;
+    showResult(result, $('download').download);
+    status('已保留选区，下载按钮将保存裁剪后的 PNG。');
+  } catch (error) {
+    if (version === generation) status(error.name === 'AbortError' ? '裁剪超时，请稍后重试。' : error.message, true);
+  } finally {
+    clearTimeout(timeout);
+    setBusy(false);
   }
 };

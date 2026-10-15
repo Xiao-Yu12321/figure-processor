@@ -13,8 +13,9 @@
       <div class="panel-title"><h2>原始截图</h2><label id="choose" class="text-button native-upload">选择图片<input type="file" id="file" accept="image/png,image/jpeg,image/webp,image/bmp" aria-label="选择图片"></label></div>
       <div id="drop" class="drop" tabindex="0" role="button" aria-label="上传或拖入截图">
         <div id="placeholder"><div class="upload-icon">↥</div><h3>把几何截图放在这里</h3><p>点击上传、拖入图片，或直接 Ctrl / ⌘ + V 粘贴</p><small>PNG / JPG / WebP / BMP · 最大 20 MB</small></div>
-        <img id="original" alt="原始截图预览" hidden>
+        <div id="source-stage" class="image-stage" hidden><img id="original" alt="原始截图预览" draggable="false" hidden><div id="source-selection" class="selection-box" hidden></div></div>
       </div>
+      <div class="crop-tools"><button id="source-select" type="button" aria-pressed="false" disabled>框选处理区域</button><button id="source-clear" type="button" disabled>取消选区</button><span id="source-crop-info" aria-live="polite"></span></div>
       <p id="source-info" class="caption" hidden></p>
       <div class="settings">
         <label>清晰化方式<select id="engine"><option value="basic">基础增强</option><option value="local">本地快速模型 · FSRCNN</option><option value="doubao">豆包 API</option></select></label>
@@ -29,7 +30,8 @@
     </section>
     <section class="panel result-panel">
       <div class="panel-title"><h2>处理结果</h2><div class="preview-switch" role="group" aria-label="预览底色"><button data-bg="checker" class="active" aria-label="透明棋盘格">▦</button><button data-bg="white" aria-label="白色底">白</button></div></div>
-      <div id="result-preview" class="preview checker"><div id="result-placeholder"><div class="geometry">△</div></div><img id="result" alt="处理后的透明图片" hidden></div>
+      <div id="result-preview" class="preview checker"><div id="result-placeholder"><div class="geometry">△</div></div><div id="result-stage" class="image-stage" hidden><img id="result" alt="处理后的透明图片" draggable="false" hidden><div id="result-selection" class="selection-box" hidden></div></div></div>
+      <div class="crop-tools"><button id="result-select" type="button" aria-pressed="false" disabled>框选保留区域</button><button id="result-apply" type="button" disabled>保留选区</button><button id="result-clear" type="button" disabled>取消选区</button><button id="result-reset" type="button" disabled>恢复完整结果</button><span id="result-crop-info" aria-live="polite"></span></div>
       <p id="result-info" class="caption" aria-live="polite">处理完成后，可切换底色检查线条和透明边缘。</p>
       <a id="download" class="download disabled" aria-disabled="true">下载透明 PNG <span>↓</span></a>
       <div id="status" role="status" aria-live="polite"></div>

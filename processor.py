@@ -1,5 +1,6 @@
 """Screenshot cleanup with a uniform background; no external image service."""
 from io import BytesIO
+import json
 import warnings
 
 import numpy as np
@@ -24,19 +25,41 @@ def validate_options(scale, tolerance, sharpen, background, padding):
         raise ProcessingError("背景模式或边距不正确。")
 
 
-def load_image(data):
+def load_image(data, *, max_pixels=MAX_PIXELS):
     try:
         with warnings.catch_warnings():
-            warnings.simplefilter("error", Image.DecompressionBombWarning)
+            warnings.simplefilter("ignore" if max_pixels > MAX_PIXELS else "error", Image.DecompressionBombWarning)
             with Image.open(BytesIO(data)) as source:
                 if source.format not in ("PNG", "JPEG", "WEBP", "BMP"):
                     raise ProcessingError("请上传 PNG、JPEG、WebP 或 BMP 图片。")
-                if source.width * source.height > MAX_PIXELS:
-                    raise ProcessingError("原图不能超过 1200 万像素。")
+                if source.width * source.height > max_pixels:
+                    raise ProcessingError(f"图片不能超过 {max_pixels // 10000} 万像素。")
                 return ImageOps.exif_transpose(source).convert("RGBA")
     except (UnidentifiedImageError, OSError, Image.DecompressionBombError,
             Image.DecompressionBombWarning) as exc:
         raise ProcessingError("无法读取图片，文件可能损坏或尺寸过大。") from exc
+
+
+def parse_crop(value):
+    try:
+        box = json.loads(value)
+    except (ValueError, TypeError) as exc:
+        raise ProcessingError('选区格式不正确。') from exc
+    if not isinstance(box, list) or len(box) != 4 or any(type(v) is not int for v in box):
+        raise ProcessingError('选区必须为四个整数坐标。')
+    return box
+
+
+def crop_image(data, box, *, max_pixels=MAX_PIXELS):
+    image = load_image(data, max_pixels=max_pixels)
+    left, top, right, bottom = box
+    if not (0 <= left < right <= image.width and 0 <= top < bottom <= image.height):
+        raise ProcessingError('选区超出图片范围或没有面积，请重新框选。')
+    original = list(image.size)
+    image = image.crop(box)
+    output = BytesIO()
+    image.save(output, 'PNG')
+    return output.getvalue(), original, list(image.size)
 
 
 def process_image(data, *, scale=2, tolerance=24, sharpen=100,

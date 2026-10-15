@@ -7,7 +7,13 @@ async function processLocalImage(form) {
   const padding = Number(form.get('padding'));
   const mode = form.get('background');
   const bitmap = await createImageBitmap(file, {imageOrientation: 'from-image'});
-  const w = bitmap.width, h = bitmap.height, n = w * h;
+  const box = form.get('crop') ? JSON.parse(form.get('crop')) : [0, 0, bitmap.width, bitmap.height];
+  if (!Array.isArray(box) || box.length !== 4 || !box.every(Number.isInteger) ||
+      !(0 <= box[0] && box[0] < box[2] && box[2] <= bitmap.width &&
+        0 <= box[1] && box[1] < box[3] && box[3] <= bitmap.height)) {
+    bitmap.close(); throw new Error('选区不正确，请重新框选。');
+  }
+  const w = box[2]-box[0], h = box[3]-box[1], n = w * h;
   if (n > 6000000 || n * scale * scale > 24000000) {
     bitmap.close();
     throw new Error('本地版原图最多 600 万像素，放大后最多 2400 万像素，请缩小图片或降低倍数。');
@@ -15,7 +21,7 @@ async function processLocalImage(form) {
   const canvas = document.createElement('canvas');
   canvas.width = w; canvas.height = h;
   const context = canvas.getContext('2d', {willReadFrequently: true});
-  context.drawImage(bitmap, 0, 0); bitmap.close();
+  context.drawImage(bitmap, box[0], box[1], w, h, 0, 0, w, h); bitmap.close();
   const image = context.getImageData(0, 0, w, h), pixels = image.data;
   let background = null;
   if (mode !== 'keep') {
@@ -109,4 +115,18 @@ async function processLocalImage(form) {
     out.putImageData(img,0,0);
   }
   return {image:output.toDataURL('image/png'), original:[w,h],output:[output.width,output.height],background};
+}
+
+async function cropLocalImage(blob, box) {
+  const image = await createImageBitmap(blob);
+  try {
+    const [left, top, right, bottom] = box;
+    if (!(0 <= left && left < right && right <= image.width && 0 <= top && top < bottom && bottom <= image.height)) {
+      throw new Error('选区超出图片范围，请重新框选。');
+    }
+    const canvas = document.createElement('canvas');
+    canvas.width = right-left; canvas.height = bottom-top;
+    canvas.getContext('2d').drawImage(image, left, top, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
+    return {image: canvas.toDataURL('image/png'), output: [canvas.width, canvas.height]};
+  } finally {image.close();}
 }
