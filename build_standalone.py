@@ -16,7 +16,7 @@ scripts = scripts.replace("    if (!response.ok) throw new Error(result.error ||
 local = (root / 'static/local-processor.js').read_text(encoding='utf-8')
 html = template.replace('{{ styles | safe }}', (root / 'static/style.css').read_text(encoding='utf-8'))
 html = html.replace('{{ scripts | safe }}', local + '\n' + scripts)
-html = html.replace('<option value="local">本地模型 · EDSR</option><option value="doubao">豆包 API</option>', '')
+html = html.replace('<option value="local">本地快速模型 · FSRCNN</option><option value="doubao">豆包 API</option>', '')
 html = html.replace('由后端处理图片。', '离线基础版；AI 模型和 API 功能请启动 Python 后端使用。')
 destination = root / '几何截图工坊.html'
 destination.write_text(html, encoding='utf-8')

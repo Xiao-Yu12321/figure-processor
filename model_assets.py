@@ -1,13 +1,13 @@
-"""Pinned public EDSR weights from the model author's repository."""
+"""Pinned lightweight FSRCNN weights from the model author's repository."""
 import hashlib
 import os
 from pathlib import Path
 import tempfile
 import urllib.request
 
-MODEL_PATH = Path(__file__).resolve().parent / 'models' / 'EDSR_x2.pb'
-MODEL_URL = 'https://raw.githubusercontent.com/Saafke/EDSR_Tensorflow/06c7bd65b0305c2955328f8f2721ea86c341f660/models/EDSR_x2.pb'
-MODEL_SHA256 = '585623221baa070279a0d1e7e113a4c3faba0f318ca7fdd9a65d9afc0763d9b4'
+MODEL_PATH = Path(__file__).resolve().parent / 'models' / 'FSRCNN_x2.pb'
+MODEL_URL = 'https://raw.githubusercontent.com/Saafke/FSRCNN_Tensorflow/6a4812c4ef1c4f5947d79beafa32a05a6eb4a94d/models/FSRCNN_x2.pb'
+MODEL_SHA256 = '366b33f0084c7b3f2bf6724f0a2c77bca94fcec9d7b6d72389d330073b380d5c'
 
 
 def verified_model():
@@ -25,7 +25,7 @@ def download_model():
             total = 0
             while chunk := response.read(1024 * 1024):
                 total += len(chunk)
-                if total > 45_000_000:
+                if total > 100_000:
                     raise RuntimeError('模型下载大小异常。')
                 digest.update(chunk)
                 output.write(chunk)

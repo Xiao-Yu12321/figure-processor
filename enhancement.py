@@ -33,7 +33,7 @@ def local_model():
     cv2.setNumThreads(2)
     model = cv2.dnn_superres.DnnSuperResImpl_create()
     model.readModel(str(MODEL_PATH))
-    model.setModel('edsr', 2)
+    model.setModel('fsrcnn', 2)
     return model
 
 
@@ -54,7 +54,7 @@ def local_upscale(image):
         source = np.asarray(image)[:, :, ::-1].copy()
         h, w = source.shape[:2]
         result = np.empty((h * 2, w * 2, 3), dtype=np.uint8)
-        tile, overlap = 192, 24
+        tile, overlap = 256, 12
         for y in range(0, h, tile):
             for x in range(0, w, tile):
                 x0, y0 = max(0, x-overlap), max(0, y-overlap)

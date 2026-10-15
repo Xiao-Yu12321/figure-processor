@@ -12,12 +12,13 @@ def build():
         raise RuntimeError('Run python model_assets.py before creating the model-inclusive package.')
     files = [ROOT / name for name in (
         '.gitignore', 'README.md', 'app.py', 'processor.py', 'enhancement.py',
-        'model_assets.py', 'build_standalone.py', 'build_package.py',
+        'model_assets.py', 'build_standalone.py', 'build_package.py', 'benchmark.py',
         'requirements.txt', 'requirements-dev.txt', '几何截图工坊.html',
     )]
     for directory in ('static', 'templates', 'tests', 'models'):
         files.extend(p for p in (ROOT / directory).rglob('*')
-                     if p.is_file() and '__pycache__' not in p.parts and p.suffix not in ('.pyc', '.part'))
+                     if p.is_file() and '__pycache__' not in p.parts and p.suffix not in ('.pyc', '.part')
+                     and (p.suffix != '.pb' or p == MODEL_PATH))
     target = ROOT.parent / 'figure-processor-current.zip'
     with zipfile.ZipFile(target, 'w', zipfile.ZIP_DEFLATED) as archive:
         for path in sorted(files):

@@ -1,5 +1,6 @@
 import base64
 from pathlib import Path
+from time import perf_counter
 
 from flask import Flask, jsonify, render_template, request
 from werkzeug.exceptions import RequestEntityTooLarge
@@ -28,6 +29,7 @@ def available_engines():
 
 @app.post("/api/process")
 def process():
+    started = perf_counter()
     image = request.files.get("image")
     if image is None or not image.filename:
         return jsonify(error="请先上传或粘贴图片。"), 400
@@ -62,7 +64,9 @@ def process():
         return jsonify(error=str(exc)), 400
     except (ValueError, TypeError):
         return jsonify(error="参数格式不正确。"), 400
-    return jsonify(image="data:image/png;base64," + base64.b64encode(png).decode(), **info)
+    encoded = base64.b64encode(png).decode()
+    info['processing_ms'] = round((perf_counter() - started) * 1000, 1)
+    return jsonify(image="data:image/png;base64," + encoded, **info)
 
 
 @app.errorhandler(RequestEntityTooLarge)

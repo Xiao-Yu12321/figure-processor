@@ -8,8 +8,8 @@ let available = null;
 function updateEngineInfo() {
   const engine = $('engine').value;
   let message = '由后端完成放大、锐化、去背景和裁边。';
-  if (engine === 'local') message = 'EDSR 预训练模型在后端运行，不调用外部图片服务。原图最多 100 万像素，CPU 处理可能需要几分钟。' + (available && !available.local ? ' 模型尚未安装。' : '');
-  if (engine === 'doubao') message = '图片将发送至火山方舟，可能产生 API 费用。豆包可能改变字母或细线，请核对原图。' + (available && !available.doubao ? ' 后端尚未配置密钥或模型 ID。' : '');
+  if (engine === 'local') message = '轻量超分辨率，原图最多 100 万像素；速度优先，目标 10 秒内完成。' + (available && !available.local ? ' 模型尚未安装。' : '');
+  if (engine === 'doubao') message = '外部 API 无法保证 10 秒内完成，可能产生费用并改变字母或细线，请核对原图。' + (available && !available.doubao ? ' 后端尚未配置密钥或模型 ID。' : '');
   $('engine-info').textContent = message;
 }
 if (location.protocol === 'http:' || location.protocol === 'https:') {
@@ -88,7 +88,9 @@ $('process').onclick = async () => {
   $('process').textContent = '正在处理…';
   status('正在提高清晰度、去除背景并裁剪空白…');
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 600000);
+  const timeoutMs = $('engine').value === 'doubao' ? 180000 : 10000;
+  const startedAt = performance.now();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
   try {
     const response = await fetch('/api/process', {method: 'POST', body: data, signal: controller.signal});
     const result = await response.json();
@@ -97,14 +99,14 @@ $('process').onclick = async () => {
     $('result').src = result.image;
     $('result').hidden = false;
     $('result-placeholder').hidden = true;
-    $('result-info').textContent = `${result.original.join(' × ')} → ${result.output.join(' × ')} px · PNG`;
+    $('result-info').textContent = `${result.original.join(' × ')} → ${result.output.join(' × ')} px · PNG · ${((performance.now() - startedAt) / 1000).toFixed(2)} 秒`;
     $('download').href = result.image;
     $('download').download = (file.name || 'screenshot').replace(/\.[^.]+$/, '') + '-clean.png';
     $('download').classList.remove('disabled');
     $('download').setAttribute('aria-disabled', 'false');
     status('处理完成。若细线缺失，请降低去背景容差。');
   } catch (error) {
-    if (version === generation) status(error.name === 'AbortError' ? '处理超时，请降低放大倍数或使用较小图片。' : error.message, true);
+    if (version === generation) status(error.name === 'AbortError' ? (timeoutMs === 10000 ? '本次处理超过 10 秒，请缩小截图或选择基础增强。' : '豆包 API 超时，请稍后重试。') : error.message, true);
   } finally {
     clearTimeout(timeout);
     busy = false;

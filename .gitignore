@@ -3,5 +3,6 @@ __pycache__/
 .pytest_cache/
 *.pyc
 models/*.pb
+!models/FSRCNN_x2.pb
 models/*.part
 .env

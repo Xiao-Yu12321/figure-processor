@@ -34,13 +34,13 @@ def test_real_pretrained_inference_and_api():
     assert result.getchannel('A').getextrema()[1] > 240
 
 
-def test_edsr_tile_stitching(monkeypatch):
+def test_super_resolution_tile_stitching(monkeypatch):
     # Deterministic fake isolates the overlap/crop math from model inference.
     class NearestModel:
         def upsample(self, source):
             return np.repeat(np.repeat(source, 2, axis=0), 2, axis=1)
     monkeypatch.setattr(enhancement, 'local_model', lambda: NearestModel())
-    source = np.random.default_rng(1).integers(0, 256, (219, 403, 3), dtype=np.uint8)
+    source = np.random.default_rng(1).integers(0, 256, (530, 579, 3), dtype=np.uint8)
     actual = np.asarray(enhancement.local_upscale(Image.fromarray(source)))
     assert np.array_equal(actual, np.repeat(np.repeat(source, 2, axis=0), 2, axis=1))
 
