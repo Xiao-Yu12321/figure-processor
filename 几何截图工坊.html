@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>几何截图工坊</title>
+  <style>:root{font-family:Inter,"PingFang SC","Microsoft YaHei",system-ui,sans-serif;color:#233c37;background:#f5f7f3;font-synthesis:none}*{box-sizing:border-box}body{margin:0}main{max-width:1240px;margin:auto;padding:32px 40px}header{display:flex;justify-content:space-between;align-items:center;padding-bottom:26px;border-bottom:1px solid #dce4da}.brand{font-size:19px;font-weight:750}.badge,.eyebrow{font-size:11px;letter-spacing:2px;color:#607b66}.intro{padding:44px 0 26px}h1{font-size:clamp(28px,4vw,44px);letter-spacing:-1px;margin:15px 0}p{line-height:1.7;color:#6a7973}.intro p{margin:0}.workflow{display:flex;gap:36px;padding:15px 0 25px;font-size:12px;color:#637a6c}.workspace{display:grid;grid-template-columns:1fr 1fr;gap:24px}.panel{background:#fff;border:1px solid #e0e7df;border-radius:16px;padding:24px;box-shadow:0 4px 20px #233c3704}.panel-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}h2{font-size:16px;margin:0}button,select,input,a{font:inherit}button,a,select{touch-action:manipulation}button{cursor:pointer}.text-button{border:0;background:transparent;color:#3c7d59;font-size:12px}.drop,.preview{min-height:280px;height:320px;display:flex;align-items:center;justify-content:center;text-align:center;overflow:auto;border-radius:10px;padding:18px}.drop{border:1px dashed #bed0bf;background:#f8faf6;cursor:pointer}.drop.dragover{background:#e4f1e4;border-color:#397d55}.drop img,.preview img{max-width:100%;max-height:100%;object-fit:contain}.upload-icon{font-size:34px;color:#588765;margin-bottom:14px}h3{font-size:16px;margin:10px 0}.drop p{font-size:12px;margin:12px 0}.drop small,small{font-size:11px;color:#8a978e}.caption{font-size:11px;min-height:34px;margin:12px 0 16px;overflow-wrap:anywhere}.settings{border-top:1px solid #edf0e9;padding-top:18px;display:grid;gap:17px}label{font-size:12px;font-weight:600;display:block}select{display:block;width:100%;border:1px solid #dbe3d8;border-radius:6px;background:#fcfdfb;padding:10px;margin-top:8px;color:#334b3e;font-size:12px}.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}output{float:right;color:#497e55}input[type=range]{display:block;width:100%;margin:12px 0 6px;accent-color:#447a50}label small{display:block;font-weight:400;line-height:1.6}.checkbox{display:flex;align-items:center;gap:7px;font-weight:400}.checkbox small{margin-left:auto}input[type=checkbox]{accent-color:#447a50}.primary,.download{display:flex;justify-content:space-between;align-items:center;width:100%;border:0;border-radius:8px;padding:14px 18px;text-decoration:none;font-size:13px;font-weight:650}.primary{margin-top:24px;background:#397754;color:white}.primary:disabled{opacity:.45;cursor:default}.primary:hover:enabled{background:#28633f}.download{background:#edf3e9;color:#397754}.download.disabled{opacity:.45;pointer-events:none}.preview-switch{display:flex;gap:4px}.preview-switch button{border:1px solid #dce5da;background:#fff;color:#758475;border-radius:5px;width:29px;height:27px;font-size:12px}.preview-switch button.active{border-color:#4c8157;background:#edf5e9;color:#356d43}.checker{background-color:#fff;background-image:linear-gradient(45deg,#edf0ea 25%,transparent 25%),linear-gradient(-45deg,#edf0ea 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#edf0ea 75%),linear-gradient(-45deg,transparent 75%,#edf0ea 75%);background-size:20px 20px;background-position:0 0,0 10px,10px -10px,-10px 0}.preview.white{background:#fff;border:1px solid #edf0e9}.geometry{font-size:60px;line-height:1;color:#97ad9b}.preview p{font-size:12px}.preview small{padding:4px;background:#ffffffbd;border-radius:4px}aside{background:#f7faf5;border-radius:10px;padding:18px;margin-top:26px;font-size:12px}aside strong{font-size:12px}aside p{font-size:11px;margin:8px 0 0}#status{font-size:12px;line-height:1.6;margin-top:14px;color:#3c7d59}#status.error{color:#ad462e}footer{display:flex;justify-content:space-between;padding:26px 0;color:#90a08f;font-size:10px}footer span{letter-spacing:1.5px}[hidden]{display:none!important}:focus-visible{outline:3px solid #8cbd94;outline-offset:3px}@media(max-width:760px){main{padding:20px}.workspace{grid-template-columns:1fr}.badge{display:none}.workflow{gap:16px;font-size:10px}.panel{padding:18px}.intro{padding-top:30px}.drop,.preview{height:280px}.checkbox{flex-wrap:wrap}.checkbox small{margin-left:0}footer span{display:none}}
+.native-upload{position:relative;display:inline-flex;align-items:center;min-height:32px;padding:6px 8px;cursor:pointer;font-weight:400}.native-upload input[type=file]{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}.native-upload:focus-within{outline:3px solid #8cbd94;outline-offset:3px;border-radius:4px}
+</style>
+</head>
+<body>
+<main>
+  <div class="workspace">
+    <section class="panel source-panel">
+      <div class="panel-title"><h2>原始截图</h2><label id="choose" class="text-button native-upload">选择图片<input type="file" id="file" accept="image/png,image/jpeg,image/webp,image/bmp" aria-label="选择图片"></label></div>
+      <div id="drop" class="drop" tabindex="0" role="button" aria-label="上传或拖入截图">
+        <div id="placeholder"><div class="upload-icon">↥</div><h3>把几何截图放在这里</h3><p>点击上传、拖入图片，或直接 Ctrl / ⌘ + V 粘贴</p><small>PNG / JPG / WebP / BMP · 最大 20 MB</small></div>
+        <img id="original" alt="原始截图预览" hidden>
+      </div>
+      <p id="source-info" class="caption" hidden></p>
+      <div class="settings">
+        <label>清晰化方式<select id="engine"><option value="basic">基础增强</option></select></label>
+        <p id="engine-info" class="caption" aria-live="polite">离线基础版；AI 模型和 API 功能请启动 Python 后端使用。</p>
+        <label>背景处理<select id="background"><option value="uniform">去除全部同色背景</option><option value="keep">保留背景 · 仅清晰化</option></select></label>
+        <div class="two-col"><label>放大倍数<select id="scale"><option value="1">1× 原尺寸</option><option value="2" selected>2× 更清晰</option><option value="3">3× 大图</option></select></label><label>透明边距<select id="padding"><option value="0">0 px</option><option value="8" selected>8 px</option><option value="16">16 px</option><option value="32">32 px</option></select></label></div>
+        <label>去背景容差 <output id="tolerance-value">24</output><input id="tolerance" type="range" min="0" max="100" value="24"><small>线条太淡或消失时调低；背景有残留时调高。</small></label>
+        <label>锐化强度 <output id="sharpen-value">100</output><input id="sharpen" type="range" min="0" max="200" value="100"></label>
+        <label class="checkbox"><input id="denoise" type="checkbox">轻度降噪 <small>细虚线或小字较多时建议关闭</small></label>
+      </div>
+      <button id="process" class="primary" disabled>处理图片 <span>→</span></button>
+    </section>
+    <section class="panel result-panel">
+      <div class="panel-title"><h2>处理结果</h2><div class="preview-switch" role="group" aria-label="预览底色"><button data-bg="checker" class="active" aria-label="透明棋盘格">▦</button><button data-bg="white" aria-label="白色底">白</button></div></div>
+      <div id="result-preview" class="preview checker"><div id="result-placeholder"><div class="geometry">△</div></div><img id="result" alt="处理后的透明图片" hidden></div>
+      <p id="result-info" class="caption" aria-live="polite">处理完成后，可切换底色检查线条和透明边缘。</p>
+      <a id="download" class="download disabled" aria-disabled="true">下载透明 PNG <span>↓</span></a>
+      <div id="status" role="status" aria-live="polite"></div>
+    </section>
+  </div>
+  <footer><span>OUTPUT · TRANSPARENT PNG</span></footer>
+</main>
+<script>// Standalone browser processing. No server, network, or external libraries.
+async function processLocalImage(form) {
+  await new Promise(resolve => setTimeout(resolve, 30));
+  const file = form.get('image');
+  const scale = Number(form.get('scale'));
+  const tolerance = Number(form.get('tolerance'));
+  const padding = Number(form.get('padding'));
+  const mode = form.get('background');
+  const bitmap = await createImageBitmap(file, {imageOrientation: 'from-image'});
+  const w = bitmap.width, h = bitmap.height, n = w * h;
+  if (n > 6000000 || n * scale * scale > 24000000) {
+    bitmap.close();
+    throw new Error('本地版原图最多 600 万像素，放大后最多 2400 万像素，请缩小图片或降低倍数。');
+  }
+  const canvas = document.createElement('canvas');
+  canvas.width = w; canvas.height = h;
+  const context = canvas.getContext('2d', {willReadFrequently: true});
+  context.drawImage(bitmap, 0, 0); bitmap.close();
+  const image = context.getImageData(0, 0, w, h), pixels = image.data;
+  let background = null;
+  if (mode !== 'keep') {
+    const border = [[], [], []];
+    let total = 0;
+    function sample(x, y) {
+      total++;
+      const i = (y * w + x) * 4;
+      if (pixels[i + 3] > 242) for (let c = 0; c < 3; c++) border[c].push(pixels[i + c]);
+    }
+    for (let x = 0; x < w; x++) { sample(x, 0); sample(x, h - 1); }
+    for (let y = 0; y < h; y++) { sample(0, y); sample(w - 1, y); }
+    if (border[0].length > total / 2) {
+      background = border.map(values => {values.sort((a,b) => a-b); return values[Math.floor(values.length / 2)];});
+      const candidate = new Uint8Array(n), removed = new Uint8Array(n);
+      for (let p = 0; p < n; p++) {
+        const i = p * 4;
+        const d = Math.max(...background.map((v, c) => Math.abs(pixels[i+c] - v)));
+        candidate[p] = d <= tolerance || pixels[i+3] === 0 ? 1 : 0;
+      }
+      if (mode === 'uniform') removed.set(candidate);
+      else {
+        const queue = new Int32Array(n);
+        let head = 0, tail = 0;
+        function add(p) { if (candidate[p] && !removed[p]) {removed[p] = 1; queue[tail++] = p;} }
+        for (let x = 0; x < w; x++) {add(x); add((h-1)*w+x);}
+        for (let y = 0; y < h; y++) {add(y*w); add(y*w+w-1);}
+        while (head < tail) {
+          const p = queue[head++], x = p % w;
+          if (x) add(p-1); if (x<w-1) add(p+1);
+          if (p>=w) add(p-w); if (p<n-w) add(p+w);
+        }
+      }
+      const lightPaper = Math.min(...background) >= 230;
+      for (let p = 0; p < n; p++) {
+        const i = p*4, x = p % w;
+        if (removed[p]) {pixels[i+3]=0; continue;}
+        const rim = (x && removed[p-1]) || (x<w-1 && removed[p+1]) || (p>=w && removed[p-w]) || (p<n-w && removed[p+w]);
+        if ((lightPaper && mode === 'uniform') || rim) {
+          let coverage;
+          if (lightPaper) coverage = Math.max(0, Math.min(1, 1-Math.min(...background.map((v,c)=>pixels[i+c]/v))));
+          else coverage = Math.max(0, Math.min(1, (Math.max(...background.map((v,c)=>Math.abs(pixels[i+c]-v)))-tolerance)/12));
+          if (coverage>0 && coverage<1) for (let c=0; c<3; c++) pixels[i+c] = Math.max(0,Math.min(255,(pixels[i+c]-background[c]*(1-coverage))/coverage));
+          pixels[i+3] = Math.round(pixels[i+3]*coverage);
+        }
+      }
+    }
+  }
+  if (form.get('denoise') === 'true') {
+    const source = pixels.slice();
+    for (let y=1; y<h-1; y++) for (let x=1; x<w-1; x++) {
+      const i=(y*w+x)*4;
+      if (!source[i+3]) continue;
+      // Filter only opaque interiors, so transparent boundaries stay crisp.
+      let opaque = true;
+      for (let dy=-1;dy<=1;dy++) for(let dx=-1;dx<=1;dx++) if(source[((y+dy)*w+x+dx)*4+3] !== 255) opaque=false;
+      if (!opaque) continue;
+      for(let c=0;c<3;c++) {
+        const values=[];
+        for(let dy=-1;dy<=1;dy++) for(let dx=-1;dx<=1;dx++) values.push(source[((y+dy)*w+x+dx)*4+c]);
+        values.sort((a,b)=>a-b); pixels[i+c]=values[4];
+      }
+    }
+  }
+  let left=w, top=h, right=-1, bottom=-1;
+  for(let y=0;y<h;y++) for(let x=0;x<w;x++) if(pixels[(y*w+x)*4+3]) {
+    left=Math.min(left,x);right=Math.max(right,x);top=Math.min(top,y);bottom=Math.max(bottom,y);
+  }
+  if (right<left) throw new Error('没有找到可保留的内容，请降低容差或选择保留背景。');
+  context.putImageData(image,0,0);
+  const output=document.createElement('canvas');
+  const width=(right-left+1)*scale, height=(bottom-top+1)*scale;
+  output.width=width+2*padding; output.height=height+2*padding;
+  const out=output.getContext('2d',{willReadFrequently:true});
+  out.imageSmoothingEnabled=true;out.imageSmoothingQuality='high';
+  out.drawImage(canvas,left,top,right-left+1,bottom-top+1,padding,padding,width,height);
+  const sharpen=Number(form.get('sharpen'))/100;
+  if(sharpen>0) {
+    const img=out.getImageData(0,0,output.width,output.height), source=img.data.slice(), target=img.data, ow=output.width;
+    for(let y=1;y<output.height-1;y++) for(let x=1;x<ow-1;x++) {
+      const i=(y*ow+x)*4;
+      if(!source[i+3]) continue;
+      // Alpha-weighted local blur avoids sharpening invisible background colors.
+      for(let c=0;c<3;c++) {
+        let sum=0, weight=0;
+        for(const offset of [-ow,-1,0,1,ow]) {const j=i+offset*4;sum+=source[j+c]*source[j+3];weight+=source[j+3];}
+        const blurred=weight?sum/weight:source[i+c];
+        target[i+c]=Math.max(0,Math.min(255,source[i+c]+sharpen*(source[i+c]-blurred)));
+      }
+    }
+    out.putImageData(img,0,0);
+  }
+  return {image:output.toDataURL('image/png'), original:[w,h],output:[output.width,output.height],background};
+}
+
+const $ = (id) => document.getElementById(id);
+let selectedFile = null;
+let originalURL = null;
+let busy = false;
+let generation = 0;
+let available = null;
+
+function updateEngineInfo() {
+  const engine = $('engine').value;
+  let message = '离线基础版；AI 功能请启动 Python 后端使用。';
+  if (engine === 'local') message = 'EDSR 预训练模型在后端运行，不调用外部图片服务。原图最多 100 万像素，CPU 处理可能需要几分钟。' + (available && !available.local ? ' 模型尚未安装。' : '');
+  if (engine === 'doubao') message = '图片将发送至火山方舟，可能产生 API 费用。豆包可能改变字母或细线，请核对原图。' + (available && !available.doubao ? ' 后端尚未配置密钥或模型 ID。' : '');
+  $('engine-info').textContent = message;
+}
+
+
+function status(message, error = false) {
+  $('status').textContent = message;
+  $('status').classList.toggle('error', error);
+}
+function invalidateResult() {
+  generation++;
+  $('download').removeAttribute('href');
+  $('download').classList.add('disabled');
+  $('download').setAttribute('aria-disabled', 'true');
+  $('result').hidden = true;
+  $('result-placeholder').hidden = false;
+  $('result-info').textContent = '处理完成后，可切换底色检查线条和透明边缘。';
+}
+function selectFile(file) {
+  if (!file) return;
+  if (file.size > 20 * 1024 * 1024) return status('文件不能超过 20 MB。', true);
+  if (!/^image\/(png|jpeg|webp|bmp|x-ms-bmp)$/.test(file.type)) return status('请使用 PNG、JPEG、WebP 或 BMP 图片。', true);
+  if (originalURL) URL.revokeObjectURL(originalURL);
+  selectedFile = file;
+  originalURL = URL.createObjectURL(file);
+  $('original').src = originalURL;
+  $('original').hidden = false;
+  $('placeholder').hidden = true;
+  $('source-info').textContent = `${file.name || '粘贴的截图'} · ${(file.size / 1024).toFixed(0)} KB`;
+  $('source-info').hidden = false;
+  $('process').disabled = busy;
+  invalidateResult();
+  status('截图已就绪，点击“处理图片”。');
+}
+$('drop').onclick = () => $('file').click();
+$('drop').onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); $('file').click(); } };
+$('file').onchange = (e) => { selectFile(e.target.files[0]); e.target.value = ''; };
+document.addEventListener('paste', (e) => {
+  const item = Array.from(e.clipboardData.items).find((item) => item.type.startsWith('image/'));
+  if (item) { e.preventDefault(); selectFile(item.getAsFile()); }
+});
+for (const type of ['dragenter', 'dragover']) $('drop').addEventListener(type, (e) => {
+  e.preventDefault(); $('drop').classList.add('dragover');
+});
+for (const type of ['dragleave', 'drop']) $('drop').addEventListener(type, (e) => {
+  e.preventDefault(); $('drop').classList.remove('dragover');
+  if (type === 'drop') selectFile(e.dataTransfer.files[0]);
+});
+for (const id of ['engine', 'tolerance', 'sharpen', 'background', 'scale', 'padding', 'denoise']) {
+  $(id).addEventListener('input', () => {
+    if ($(id + '-value')) $(id + '-value').value = $(id).value;
+    if (id === 'engine') updateEngineInfo();
+    invalidateResult();
+    if (selectedFile) status('参数已更新，请重新处理。');
+  });
+}
+document.querySelectorAll('[data-bg]').forEach((button) => button.onclick = () => {
+  $('result-preview').className = 'preview ' + button.dataset.bg;
+  document.querySelectorAll('[data-bg]').forEach((other) => other.classList.toggle('active', other === button));
+});
+$('process').onclick = async () => {
+  if (!selectedFile || busy) return;
+  invalidateResult();
+  const version = generation;
+  const file = selectedFile;
+  const data = new FormData();
+  data.append('image', file, file.name || 'screenshot.png');
+  for (const id of ['engine', 'scale', 'tolerance', 'sharpen', 'padding', 'background']) data.append(id, $(id).value);
+  data.append('denoise', $('denoise').checked);
+  busy = true;
+  $('process').disabled = true;
+  $('process').textContent = '正在处理…';
+  status('正在提高清晰度、去除背景并裁剪空白…');
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 600000);
+  try {
+    const result = await processLocalImage(data);
+    if (version !== generation) return;
+    $('result').src = result.image;
+    $('result').hidden = false;
+    $('result-placeholder').hidden = true;
+    $('result-info').textContent = `${result.original.join(' × ')} → ${result.output.join(' × ')} px · PNG`;
+    $('download').href = result.image;
+    $('download').download = (file.name || 'screenshot').replace(/\.[^.]+$/, '') + '-clean.png';
+    $('download').classList.remove('disabled');
+    $('download').setAttribute('aria-disabled', 'false');
+    status('处理完成。若细线缺失，请降低去背景容差。');
+  } catch (error) {
+    if (version === generation) status(error.name === 'AbortError' ? '处理超时，请降低放大倍数或使用较小图片。' : error.message, true);
+  } finally {
+    clearTimeout(timeout);
+    busy = false;
+    $('process').disabled = !selectedFile;
+    $('process').innerHTML = '处理图片 <span>→</span>';
+  }
+};
+</script>
+</body>
+</html>
