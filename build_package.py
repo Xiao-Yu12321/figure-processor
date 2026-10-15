@@ -12,8 +12,8 @@ def build():
         raise RuntimeError('Run python model_assets.py before creating the model-inclusive package.')
     files = [ROOT / name for name in (
         '.gitignore', 'README.md', 'app.py', 'processor.py', 'enhancement.py',
-        'model_assets.py', 'build_standalone.py', 'build_package.py', 'benchmark.py',
-        'requirements.txt', 'requirements-dev.txt', '几何截图工坊.html',
+        'model_assets.py', 'build_standalone.py', 'build_package.py', 'benchmark.py', 'desktop_automation.py',
+        'requirements.txt', 'requirements-dev.txt', 'requirements-windows.txt', '几何截图工坊.html',
     )]
     for directory in ('static', 'templates', 'tests', 'models'):
         files.extend(p for p in (ROOT / directory).rglob('*')

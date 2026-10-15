@@ -1,0 +1,3 @@
+-r requirements-dev.txt
+PyAutoGUI==0.9.54; sys_platform == 'win32'
+pywin32==311; sys_platform == 'win32'

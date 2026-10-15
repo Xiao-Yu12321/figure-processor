@@ -12,6 +12,8 @@ function updateEngineInfo() {
   let message = '由后端完成放大、锐化、去背景和裁边。';
   if (engine === 'local') message = '轻量超分辨率，原图最多 100 万像素；速度优先，目标 10 秒内完成。' + (available && !available.local ? ' 模型尚未安装。' : '');
   if (engine === 'doubao') message = '外部 API 无法保证 10 秒内完成，可能产生费用并改变字母或细线，请核对原图。' + (available && !available.doubao ? ' 后端尚未配置密钥或模型 ID。' : '');
+  if (engine === 'desktop') message = '自动向已登录的 Windows 豆包 App 发送图片，右键复制生成结果。无需 API 密钥；运行时请勿操作键鼠，移到屏幕角落可停止。生成耗时不保证 10 秒，返回图保留原尺寸。' + (available && !available.desktop ? ' 请先完成本地校准并启用桌面模式。' : '');
+  $('scale').disabled = engine === 'desktop';
   $('engine-info').textContent = message;
 }
 if (location.protocol === 'http:' || location.protocol === 'https:') {
@@ -167,9 +169,10 @@ $('process').onclick = async () => {
   if (sourceCrop.box) data.append('crop', JSON.stringify(sourceCrop.box));
   setBusy(true);
   $('process').textContent = '正在处理…';
-  status('正在提高清晰度、去除背景并裁剪空白…');
+  status($('engine').value === 'desktop' ? '正在自动操作豆包 App，请勿操作键鼠；等待生成后会复制图片并去背景…' : '正在提高清晰度、去除背景并裁剪空白…');
   const controller = new AbortController();
-  const timeoutMs = $('engine').value === 'doubao' ? 180000 : 10000;
+  const engine = $('engine').value;
+  const timeoutMs = engine === 'desktop' ? 300000 : engine === 'doubao' ? 180000 : 10000;
   const startedAt = performance.now();
   const timeout = setTimeout(() => controller.abort(), timeoutMs);
   try {
@@ -182,7 +185,7 @@ $('process').onclick = async () => {
     showResult(result, (file.name || 'screenshot').replace(/\.[^.]+$/, '') + '-clean.png');
     status('处理完成。若细线缺失，请降低去背景容差。');
   } catch (error) {
-    if (version === generation) status(error.name === 'AbortError' ? (timeoutMs === 10000 ? '本次处理超过 10 秒，请缩小截图或选择基础增强。' : '豆包 API 超时，请稍后重试。') : error.message, true);
+    if (version === generation) status(error.name === 'AbortError' ? (timeoutMs === 10000 ? '本次处理超过 10 秒，请缩小截图或选择基础增强。' : engine === 'desktop' ? '豆包 App 自动化等待超时，请检查客户端。不要直接重试，以免重复发送。' : '豆包 API 超时，请稍后重试。') : error.message, true);
   } finally {
     clearTimeout(timeout);
     setBusy(false);

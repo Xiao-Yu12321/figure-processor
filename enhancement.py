@@ -13,6 +13,7 @@ from PIL import Image
 
 from model_assets import MODEL_PATH, verified_model
 from processor import ProcessingError, load_image
+from desktop_automation import desktop_available
 
 ARK_URL = 'https://ark.cn-beijing.volces.com/api/v3/images/generations'
 MODEL_LOCK = threading.Lock()
@@ -42,6 +43,7 @@ def capabilities():
         'basic': True,
         'local': verified_model(),
         'doubao': bool(os.environ.get('ARK_API_KEY') and os.environ.get('ARK_IMAGE_MODEL')),
+        'desktop': desktop_available(),
     }
 
 

@@ -1,12 +1,14 @@
 import base64
 from pathlib import Path
 from time import perf_counter
+from urllib.parse import urlsplit
 
 from flask import Flask, jsonify, render_template, request
 from werkzeug.exceptions import RequestEntityTooLarge
 
 from processor import ProcessingError, process_image, validate_options, parse_crop, crop_image, MAX_OUTPUT_PIXELS
 from enhancement import EnhancementError, capabilities, enhance
+from desktop_automation import DesktopError, desktop_enhance
 
 app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = 20 * 1024 * 1024
@@ -36,8 +38,17 @@ def process():
         return jsonify(error="请先上传或粘贴图片。"), 400
     try:
         engine = request.form.get("engine", "basic")
-        if engine not in ("basic", "local", "doubao"):
+        if engine not in ("basic", "local", "doubao", "desktop"):
             raise ProcessingError("未知清晰化模式。")
+        if engine == 'desktop':
+            if request.remote_addr not in ('127.0.0.1', '::1'):
+                return jsonify(error='豆包客户端自动化仅允许在本机通过 127.0.0.1 访问。'), 403
+            origin = request.headers.get('Origin')
+            if origin:
+                parsed = urlsplit(origin)
+                if (parsed.hostname not in ('127.0.0.1', 'localhost', '::1') or
+                        parsed.netloc != request.host or parsed.scheme != request.scheme):
+                    return jsonify(error='不能从其他网页触发桌面自动化，请打开本机程序页面。'), 403
         options = dict(
             scale=int(request.form.get("scale", 2)),
             tolerance=int(request.form.get("tolerance", 24)),
@@ -54,7 +65,10 @@ def process():
         if crop:
             data, source_size, _ = crop_image(data, parse_crop(crop))
         original = None
-        if engine != "basic":
+        if engine == 'desktop':
+            data, original = desktop_enhance(data)
+            options['scale'] = 1
+        elif engine != "basic":
             data, original = enhance(data, engine, options['scale'])
             options['scale'] = 1
         png, info = process_image(
@@ -65,7 +79,7 @@ def process():
         info['engine'] = engine
         if source_size:
             info['source'] = source_size
-    except EnhancementError as exc:
+    except (EnhancementError, DesktopError) as exc:
         return jsonify(error=str(exc)), exc.status
     except ProcessingError as exc:
         return jsonify(error=str(exc)), 400

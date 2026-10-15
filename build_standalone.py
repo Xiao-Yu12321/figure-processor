@@ -1,5 +1,6 @@
 """Build a downloadable, self-contained HTML app from the shared interface."""
 from pathlib import Path
+import re
 
 root = Path(__file__).resolve().parent
 template = (root / 'templates/index.html').read_text(encoding='utf-8')
@@ -22,7 +23,7 @@ local = (root / 'static/local-processor.js').read_text(encoding='utf-8')
 selection = (root / 'static/crop-selection.js').read_text(encoding='utf-8')
 html = template.replace('{{ styles | safe }}', (root / 'static/style.css').read_text(encoding='utf-8'))
 html = html.replace('{{ scripts | safe }}', local + '\n' + selection + '\n' + scripts)
-html = html.replace('<option value="local">本地快速模型 · FSRCNN</option><option value="doubao">豆包 API</option>', '')
+html = re.sub(r'<option value="(?:local|desktop|doubao)">.*?</option>', '', html)
 html = html.replace('由后端处理图片。', '离线基础版；AI 模型和 API 功能请启动 Python 后端使用。')
 destination = root / '几何截图工坊.html'
 destination.write_text(html, encoding='utf-8')
