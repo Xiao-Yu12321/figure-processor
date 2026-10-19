@@ -7,3 +7,4 @@ models/*.pb
 models/*.part
 .env
 .doubao-desktop.*
+experiments/output/
