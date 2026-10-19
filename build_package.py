@@ -15,9 +15,9 @@ def build():
         'model_assets.py', 'build_standalone.py', 'build_package.py', 'benchmark.py', 'desktop_automation.py',
         'requirements.txt', 'requirements-dev.txt', 'requirements-windows.txt', '几何截图工坊.html',
     )]
-    for directory in ('static', 'templates', 'tests', 'models'):
+    for directory in ('static', 'templates', 'tests', 'models', 'experiments'):
         files.extend(p for p in (ROOT / directory).rglob('*')
-                     if p.is_file() and '__pycache__' not in p.parts and p.suffix not in ('.pyc', '.part')
+                     if p.is_file() and '__pycache__' not in p.parts and 'output' not in p.relative_to(ROOT).parts and p.suffix not in ('.pyc', '.part')
                      and (p.suffix != '.pb' or p == MODEL_PATH))
     target = ROOT.parent / 'figure-processor-current.zip'
     with zipfile.ZipFile(target, 'w', zipfile.ZIP_DEFLATED) as archive:

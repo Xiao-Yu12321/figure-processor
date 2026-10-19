@@ -41,6 +41,7 @@ def local_model():
 def capabilities():
     return {
         'basic': True,
+        'line': True,
         'local': verified_model(),
         'doubao': bool(os.environ.get('ARK_API_KEY') and os.environ.get('ARK_IMAGE_MODEL')),
         'desktop': desktop_available(),

@@ -1,4 +1,5 @@
 import base64
+from io import BytesIO
 from pathlib import Path
 from time import perf_counter
 from urllib.parse import urlsplit
@@ -6,9 +7,10 @@ from urllib.parse import urlsplit
 from flask import Flask, jsonify, render_template, request
 from werkzeug.exceptions import RequestEntityTooLarge
 
-from processor import ProcessingError, process_image, validate_options, parse_crop, crop_image, MAX_OUTPUT_PIXELS
+from processor import ProcessingError, process_image, validate_options, parse_crop, crop_image, MAX_OUTPUT_PIXELS, load_image
 from enhancement import EnhancementError, capabilities, enhance
 from desktop_automation import DesktopError, desktop_enhance
+from experiments.line_cleanup import clean_lines
 
 app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = 20 * 1024 * 1024
@@ -38,7 +40,7 @@ def process():
         return jsonify(error="请先上传或粘贴图片。"), 400
     try:
         engine = request.form.get("engine", "basic")
-        if engine not in ("basic", "local", "doubao", "desktop"):
+        if engine not in ("basic", "line", "local", "doubao", "desktop"):
             raise ProcessingError("未知清晰化模式。")
         if engine == 'desktop':
             if request.remote_addr not in ('127.0.0.1', '::1'):
@@ -65,7 +67,25 @@ def process():
         if crop:
             data, source_size, _ = crop_image(data, parse_crop(crop))
         original = None
-        if engine == 'desktop':
+        line_stats = None
+        if engine == 'line':
+            threshold = int(request.form.get('line_threshold', 170))
+            smooth = float(request.form.get('line_smooth', .5))
+            ink = request.form.get('line_ink', '#000000')
+            decoded = load_image(data)
+            try:
+                result = clean_lines(decoded, threshold=threshold, smooth=smooth, ink=ink)
+            except ValueError as exc:
+                if 'No foreground retained' in str(exc):
+                    raise ProcessingError('没有找到可保留的线条，请调高去灰阈值或检查选区。') from exc
+                raise ProcessingError('线稿参数不正确：阈值为 0–254，平滑为 0–2，颜色使用 #RRGGBB。') from exc
+            buffer = BytesIO()
+            result.smoothed.save(buffer, 'PNG')
+            data = buffer.getvalue()
+            line_stats = result.stats
+            # Already transparent: never threshold or sharpen these edges again.
+            options.update(background='keep', sharpen=0, denoise=False)
+        elif engine == 'desktop':
             data, original = desktop_enhance(data)
             options['scale'] = 1
         elif engine != "basic":
@@ -77,6 +97,8 @@ def process():
         if original:
             info['original'] = original
         info['engine'] = engine
+        if line_stats is not None:
+            info['line_cleanup'] = line_stats
         if source_size:
             info['source'] = source_size
     except (EnhancementError, DesktopError) as exc:

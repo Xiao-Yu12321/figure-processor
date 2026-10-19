@@ -10,10 +10,13 @@ let currentResult = null;
 function updateEngineInfo() {
   const engine = $('engine').value;
   let message = '由后端完成放大、锐化、去背景和裁边。';
+  if (engine === 'line') message = '先按阈值去灰、去背景，再平滑边缘。输出黑色或指定单色线条；浅线丢失时调高去灰阈值。';
   if (engine === 'local') message = '轻量超分辨率，原图最多 100 万像素；速度优先，目标 10 秒内完成。' + (available && !available.local ? ' 模型尚未安装。' : '');
   if (engine === 'doubao') message = '外部 API 无法保证 10 秒内完成，可能产生费用并改变字母或细线，请核对原图。' + (available && !available.doubao ? ' 后端尚未配置密钥或模型 ID。' : '');
   if (engine === 'desktop') message = '自动向已登录的 Windows 豆包 App 发送图片，右键复制生成结果。无需 API 密钥；运行时请勿操作键鼠，移到屏幕角落可停止。生成耗时不保证 10 秒，返回图保留原尺寸。' + (available && !available.desktop ? ' 请先完成本地校准并启用桌面模式。' : '');
   $('scale').disabled = engine === 'desktop';
+  $('line-settings').hidden = engine !== 'line';
+  document.querySelectorAll('[data-general-control]').forEach(control => {control.hidden = engine === 'line';});
   $('engine-info').textContent = message;
 }
 if (location.protocol === 'http:' || location.protocol === 'https:') {
@@ -145,7 +148,7 @@ for (const type of ['dragleave', 'drop']) $('drop').addEventListener(type, (e) =
   e.preventDefault(); $('drop').classList.remove('dragover');
   if (type === 'drop') selectFile(e.dataTransfer.files[0]);
 });
-for (const id of ['engine', 'tolerance', 'sharpen', 'background', 'scale', 'padding', 'denoise']) {
+for (const id of ['engine', 'line_threshold', 'line_smooth', 'line_ink', 'tolerance', 'sharpen', 'background', 'scale', 'padding', 'denoise']) {
   $(id).addEventListener('input', () => {
     if ($(id + '-value')) $(id + '-value').value = $(id).value;
     if (id === 'engine') updateEngineInfo();
@@ -164,7 +167,7 @@ $('process').onclick = async () => {
   const file = selectedFile;
   const data = new FormData();
   data.append('image', file, file.name || 'screenshot.png');
-  for (const id of ['engine', 'scale', 'tolerance', 'sharpen', 'padding', 'background']) data.append(id, $(id).value);
+  for (const id of ['engine', 'line_threshold', 'line_smooth', 'line_ink', 'scale', 'tolerance', 'sharpen', 'padding', 'background']) data.append(id, $(id).value);
   data.append('denoise', $('denoise').checked);
   if (sourceCrop.box) data.append('crop', JSON.stringify(sourceCrop.box));
   setBusy(true);
@@ -183,7 +186,7 @@ $('process').onclick = async () => {
     result.caption = `${result.original.join(' × ')} → ${result.output.join(' × ')} px · PNG · ${((performance.now() - startedAt) / 1000).toFixed(2)} 秒`;
     fullResult = result;
     showResult(result, (file.name || 'screenshot').replace(/\.[^.]+$/, '') + '-clean.png');
-    status('处理完成。若细线缺失，请降低去背景容差。');
+    status(engine === 'line' ? '线稿净化完成。若浅色线条缺失，请调高去灰阈值；边缘太软时调低平滑。' : '处理完成。若细线缺失，请降低去背景容差。');
   } catch (error) {
     if (version === generation) status(error.name === 'AbortError' ? (timeoutMs === 10000 ? '本次处理超过 10 秒，请缩小截图或选择基础增强。' : engine === 'desktop' ? '豆包 App 自动化等待超时，请检查客户端。不要直接重试，以免重复发送。' : '豆包 API 超时，请稍后重试。') : error.message, true);
   } finally {

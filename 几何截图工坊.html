@@ -7,6 +7,7 @@
   <style>:root{font-family:Inter,"PingFang SC","Microsoft YaHei",system-ui,sans-serif;color:#233c37;background:#f5f7f3;font-synthesis:none}*{box-sizing:border-box}body{margin:0}main{max-width:1240px;margin:auto;padding:32px 40px}header{display:flex;justify-content:space-between;align-items:center;padding-bottom:26px;border-bottom:1px solid #dce4da}.brand{font-size:19px;font-weight:750}.badge,.eyebrow{font-size:11px;letter-spacing:2px;color:#607b66}.intro{padding:44px 0 26px}h1{font-size:clamp(28px,4vw,44px);letter-spacing:-1px;margin:15px 0}p{line-height:1.7;color:#6a7973}.intro p{margin:0}.workflow{display:flex;gap:36px;padding:15px 0 25px;font-size:12px;color:#637a6c}.workspace{display:grid;grid-template-columns:1fr 1fr;gap:24px}.panel{background:#fff;border:1px solid #e0e7df;border-radius:16px;padding:24px;box-shadow:0 4px 20px #233c3704}.panel-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}h2{font-size:16px;margin:0}button,select,input,a{font:inherit}button,a,select{touch-action:manipulation}button{cursor:pointer}.text-button{border:0;background:transparent;color:#3c7d59;font-size:12px}.drop,.preview{min-height:280px;height:320px;display:flex;align-items:center;justify-content:center;text-align:center;overflow:auto;border-radius:10px;padding:18px}.drop{border:1px dashed #bed0bf;background:#f8faf6;cursor:pointer}.drop.dragover{background:#e4f1e4;border-color:#397d55}.drop img,.preview img{max-width:100%;max-height:100%;object-fit:contain}.upload-icon{font-size:34px;color:#588765;margin-bottom:14px}h3{font-size:16px;margin:10px 0}.drop p{font-size:12px;margin:12px 0}.drop small,small{font-size:11px;color:#8a978e}.caption{font-size:11px;min-height:34px;margin:12px 0 16px;overflow-wrap:anywhere}.settings{border-top:1px solid #edf0e9;padding-top:18px;display:grid;gap:17px}label{font-size:12px;font-weight:600;display:block}select{display:block;width:100%;border:1px solid #dbe3d8;border-radius:6px;background:#fcfdfb;padding:10px;margin-top:8px;color:#334b3e;font-size:12px}.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}output{float:right;color:#497e55}input[type=range]{display:block;width:100%;margin:12px 0 6px;accent-color:#447a50}label small{display:block;font-weight:400;line-height:1.6}.checkbox{display:flex;align-items:center;gap:7px;font-weight:400}.checkbox small{margin-left:auto}input[type=checkbox]{accent-color:#447a50}.primary,.download{display:flex;justify-content:space-between;align-items:center;width:100%;border:0;border-radius:8px;padding:14px 18px;text-decoration:none;font-size:13px;font-weight:650}.primary{margin-top:24px;background:#397754;color:white}.primary:disabled{opacity:.45;cursor:default}.primary:hover:enabled{background:#28633f}.download{background:#edf3e9;color:#397754}.download.disabled{opacity:.45;pointer-events:none}.preview-switch{display:flex;gap:4px}.preview-switch button{border:1px solid #dce5da;background:#fff;color:#758475;border-radius:5px;width:29px;height:27px;font-size:12px}.preview-switch button.active{border-color:#4c8157;background:#edf5e9;color:#356d43}.checker{background-color:#fff;background-image:linear-gradient(45deg,#edf0ea 25%,transparent 25%),linear-gradient(-45deg,#edf0ea 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#edf0ea 75%),linear-gradient(-45deg,transparent 75%,#edf0ea 75%);background-size:20px 20px;background-position:0 0,0 10px,10px -10px,-10px 0}.preview.white{background:#fff;border:1px solid #edf0e9}.geometry{font-size:60px;line-height:1;color:#97ad9b}.preview p{font-size:12px}.preview small{padding:4px;background:#ffffffbd;border-radius:4px}aside{background:#f7faf5;border-radius:10px;padding:18px;margin-top:26px;font-size:12px}aside strong{font-size:12px}aside p{font-size:11px;margin:8px 0 0}#status{font-size:12px;line-height:1.6;margin-top:14px;color:#3c7d59}#status.error{color:#ad462e}footer{display:flex;justify-content:space-between;padding:26px 0;color:#90a08f;font-size:10px}footer span{letter-spacing:1.5px}[hidden]{display:none!important}:focus-visible{outline:3px solid #8cbd94;outline-offset:3px}@media(max-width:760px){main{padding:20px}.workspace{grid-template-columns:1fr}.badge{display:none}.workflow{gap:16px;font-size:10px}.panel{padding:18px}.intro{padding-top:30px}.drop,.preview{height:280px}.checkbox{flex-wrap:wrap}.checkbox small{margin-left:0}footer span{display:none}}
 .native-upload{position:relative;display:inline-flex;align-items:center;min-height:32px;padding:6px 8px;cursor:pointer;font-weight:400}.native-upload input[type=file]{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}.native-upload:focus-within{outline:3px solid #8cbd94;outline-offset:3px;border-radius:4px}
 .image-stage{position:relative;display:inline-block;max-width:100%;line-height:0;overflow:hidden}.image-stage img{display:block;max-width:100%;max-height:280px;width:auto;height:auto;user-select:none;-webkit-user-drag:none}.image-stage.selecting{cursor:crosshair;touch-action:none}.selection-box{position:absolute;border:2px dashed #397754;background:#79b88c18;box-shadow:0 0 0 999px #142a3055;pointer-events:none}.crop-tools{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:12px 0}.crop-tools button{background:#f5f8f2;border:1px solid #d9e3d5;color:#3a6547;border-radius:6px;padding:7px 10px;font-size:11px}.crop-tools button[aria-pressed=true]{background:#397754;color:#fff;border-color:#397754}.crop-tools button:disabled{opacity:.4;cursor:default}.crop-tools span{font-size:11px;color:#6a7973;line-height:1.5}.crop-tools:has(button[aria-pressed=true]) span{color:#397754}@media(max-width:760px){.image-stage img{max-height:240px}}
+.line-settings{display:grid;gap:17px;padding:14px;border:1px solid #dce6d7;border-radius:8px;background:#f8faf6}input[type=color]{display:block;width:100%;height:36px;padding:3px;border:1px solid #dbe3d8;border-radius:6px;margin-top:8px;background:white;cursor:pointer}
 </style>
 </head>
 <body>
@@ -22,12 +23,17 @@
       <p id="source-info" class="caption" hidden></p>
       <div class="settings">
         <label>清晰化方式<select id="engine"><option value="basic">基础增强</option></select></label>
-        <p id="engine-info" class="caption" aria-live="polite">离线基础版；AI 模型和 API 功能请启动 Python 后端使用。</p>
-        <label>背景处理<select id="background"><option value="uniform">去除全部同色背景</option><option value="keep">保留背景 · 仅清晰化</option></select></label>
+        <p id="engine-info" class="caption" aria-live="polite">离线基础版；线稿净化、AI 模型和 API 功能请启动 Python 后端使用。</p>
+        <div id="line-settings" class="line-settings" hidden>
+          <label>去灰阈值 <output id="line_threshold-value">170</output><input id="line_threshold" type="range" min="0" max="254" value="170"><small>调低去除更多灰色；浅色线条丢失时调高。</small></label>
+          <label>边缘平滑 <output id="line_smooth-value">0.5</output><input id="line_smooth" type="range" min="0" max="2" step="0.1" value="0.5"><small>0 为关闭，建议 0.3–0.6；过高可能让细线变淡。</small></label>
+          <label>线条颜色<input id="line_ink" type="color" value="#000000"></label>
+        </div>
+        <label data-general-control>背景处理<select id="background"><option value="uniform">去除全部同色背景</option><option value="keep">保留背景 · 仅清晰化</option></select></label>
         <div class="two-col"><label>放大倍数<select id="scale"><option value="1">1× 原尺寸</option><option value="2" selected>2× 更清晰</option><option value="3">3× 大图</option></select></label><label>透明边距<select id="padding"><option value="0">0 px</option><option value="8" selected>8 px</option><option value="16">16 px</option><option value="32">32 px</option></select></label></div>
-        <label>去背景容差 <output id="tolerance-value">24</output><input id="tolerance" type="range" min="0" max="100" value="24"><small>线条太淡或消失时调低；背景有残留时调高。</small></label>
-        <label>锐化强度 <output id="sharpen-value">100</output><input id="sharpen" type="range" min="0" max="200" value="100"></label>
-        <label class="checkbox"><input id="denoise" type="checkbox">轻度降噪 <small>细虚线或小字较多时建议关闭</small></label>
+        <label data-general-control>去背景容差 <output id="tolerance-value">24</output><input id="tolerance" type="range" min="0" max="100" value="24"><small>线条太淡或消失时调低；背景有残留时调高。</small></label>
+        <label data-general-control>锐化强度 <output id="sharpen-value">100</output><input id="sharpen" type="range" min="0" max="200" value="100"></label>
+        <label data-general-control class="checkbox"><input id="denoise" type="checkbox">轻度降噪 <small>细虚线或小字较多时建议关闭</small></label>
       </div>
       <button id="process" class="primary" disabled>处理图片 <span>→</span></button>
     </section>
@@ -271,10 +277,13 @@ let currentResult = null;
 function updateEngineInfo() {
   const engine = $('engine').value;
   let message = '离线基础版；AI 功能请启动 Python 后端使用。';
+  if (engine === 'line') message = '先按阈值去灰、去背景，再平滑边缘。输出黑色或指定单色线条；浅线丢失时调高去灰阈值。';
   if (engine === 'local') message = '轻量超分辨率，原图最多 100 万像素；速度优先，目标 10 秒内完成。' + (available && !available.local ? ' 模型尚未安装。' : '');
   if (engine === 'doubao') message = '外部 API 无法保证 10 秒内完成，可能产生费用并改变字母或细线，请核对原图。' + (available && !available.doubao ? ' 后端尚未配置密钥或模型 ID。' : '');
   if (engine === 'desktop') message = '自动向已登录的 Windows 豆包 App 发送图片，右键复制生成结果。无需 API 密钥；运行时请勿操作键鼠，移到屏幕角落可停止。生成耗时不保证 10 秒，返回图保留原尺寸。' + (available && !available.desktop ? ' 请先完成本地校准并启用桌面模式。' : '');
   $('scale').disabled = engine === 'desktop';
+  $('line-settings').hidden = engine !== 'line';
+  document.querySelectorAll('[data-general-control]').forEach(control => {control.hidden = engine === 'line';});
   $('engine-info').textContent = message;
 }
 
@@ -401,7 +410,7 @@ for (const type of ['dragleave', 'drop']) $('drop').addEventListener(type, (e) =
   e.preventDefault(); $('drop').classList.remove('dragover');
   if (type === 'drop') selectFile(e.dataTransfer.files[0]);
 });
-for (const id of ['engine', 'tolerance', 'sharpen', 'background', 'scale', 'padding', 'denoise']) {
+for (const id of ['engine', 'line_threshold', 'line_smooth', 'line_ink', 'tolerance', 'sharpen', 'background', 'scale', 'padding', 'denoise']) {
   $(id).addEventListener('input', () => {
     if ($(id + '-value')) $(id + '-value').value = $(id).value;
     if (id === 'engine') updateEngineInfo();
@@ -420,7 +429,7 @@ $('process').onclick = async () => {
   const file = selectedFile;
   const data = new FormData();
   data.append('image', file, file.name || 'screenshot.png');
-  for (const id of ['engine', 'scale', 'tolerance', 'sharpen', 'padding', 'background']) data.append(id, $(id).value);
+  for (const id of ['engine', 'line_threshold', 'line_smooth', 'line_ink', 'scale', 'tolerance', 'sharpen', 'padding', 'background']) data.append(id, $(id).value);
   data.append('denoise', $('denoise').checked);
   if (sourceCrop.box) data.append('crop', JSON.stringify(sourceCrop.box));
   setBusy(true);
@@ -437,7 +446,7 @@ $('process').onclick = async () => {
     result.caption = `${result.original.join(' × ')} → ${result.output.join(' × ')} px · PNG · ${((performance.now() - startedAt) / 1000).toFixed(2)} 秒`;
     fullResult = result;
     showResult(result, (file.name || 'screenshot').replace(/\.[^.]+$/, '') + '-clean.png');
-    status('处理完成。若细线缺失，请降低去背景容差。');
+    status(engine === 'line' ? '线稿净化完成。若浅色线条缺失，请调高去灰阈值；边缘太软时调低平滑。' : '处理完成。若细线缺失，请降低去背景容差。');
   } catch (error) {
     if (version === generation) status(error.name === 'AbortError' ? (timeoutMs === 10000 ? '本次处理超过 10 秒，请缩小截图或选择基础增强。' : engine === 'desktop' ? '豆包 App 自动化等待超时，请检查客户端。不要直接重试，以免重复发送。' : '豆包 API 超时，请稍后重试。') : error.message, true);
   } finally {

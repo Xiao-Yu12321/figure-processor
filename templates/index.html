@@ -18,13 +18,18 @@
       <div class="crop-tools"><button id="source-select" type="button" aria-pressed="false" disabled>框选处理区域</button><button id="source-clear" type="button" disabled>取消选区</button><span id="source-crop-info" aria-live="polite"></span></div>
       <p id="source-info" class="caption" hidden></p>
       <div class="settings">
-        <label>清晰化方式<select id="engine"><option value="basic">基础增强</option><option value="local">本地快速模型 · FSRCNN</option><option value="desktop">豆包 App · Windows 自动操作</option><option value="doubao">豆包 API</option></select></label>
+        <label>清晰化方式<select id="engine"><option value="basic">基础增强</option><option value="line">线稿净化 · 去灰与平滑</option><option value="local">本地快速模型 · FSRCNN</option><option value="desktop">豆包 App · Windows 自动操作</option><option value="doubao">豆包 API</option></select></label>
         <p id="engine-info" class="caption" aria-live="polite">由后端处理图片。</p>
-        <label>背景处理<select id="background"><option value="uniform">去除全部同色背景</option><option value="keep">保留背景 · 仅清晰化</option></select></label>
+        <div id="line-settings" class="line-settings" hidden>
+          <label>去灰阈值 <output id="line_threshold-value">170</output><input id="line_threshold" type="range" min="0" max="254" value="170"><small>调低去除更多灰色；浅色线条丢失时调高。</small></label>
+          <label>边缘平滑 <output id="line_smooth-value">0.5</output><input id="line_smooth" type="range" min="0" max="2" step="0.1" value="0.5"><small>0 为关闭，建议 0.3–0.6；过高可能让细线变淡。</small></label>
+          <label>线条颜色<input id="line_ink" type="color" value="#000000"></label>
+        </div>
+        <label data-general-control>背景处理<select id="background"><option value="uniform">去除全部同色背景</option><option value="keep">保留背景 · 仅清晰化</option></select></label>
         <div class="two-col"><label>放大倍数<select id="scale"><option value="1">1× 原尺寸</option><option value="2" selected>2× 更清晰</option><option value="3">3× 大图</option></select></label><label>透明边距<select id="padding"><option value="0">0 px</option><option value="8" selected>8 px</option><option value="16">16 px</option><option value="32">32 px</option></select></label></div>
-        <label>去背景容差 <output id="tolerance-value">24</output><input id="tolerance" type="range" min="0" max="100" value="24"><small>线条太淡或消失时调低；背景有残留时调高。</small></label>
-        <label>锐化强度 <output id="sharpen-value">100</output><input id="sharpen" type="range" min="0" max="200" value="100"></label>
-        <label class="checkbox"><input id="denoise" type="checkbox">轻度降噪 <small>细虚线或小字较多时建议关闭</small></label>
+        <label data-general-control>去背景容差 <output id="tolerance-value">24</output><input id="tolerance" type="range" min="0" max="100" value="24"><small>线条太淡或消失时调低；背景有残留时调高。</small></label>
+        <label data-general-control>锐化强度 <output id="sharpen-value">100</output><input id="sharpen" type="range" min="0" max="200" value="100"></label>
+        <label data-general-control class="checkbox"><input id="denoise" type="checkbox">轻度降噪 <small>细虚线或小字较多时建议关闭</small></label>
       </div>
       <button id="process" class="primary" disabled>处理图片 <span>→</span></button>
     </section>
